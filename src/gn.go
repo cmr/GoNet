@@ -15,10 +15,12 @@ func input(con *net.Conn, in *os.File, c <-chan bool) {
 	scanner := bufio.NewScanner(reader)
 
 	input := make(chan bool)
+	sync := make(struct{})
 	//Look for input
 	go func() {
 		for {
 			input <- scanner.Scan()
+			_ := <-sync
 		}
 	}()
 
@@ -35,6 +37,7 @@ func input(con *net.Conn, in *os.File, c <-chan bool) {
 				return
 			}
       in.Sync()
+			sync  <- struct{}{}
 			if err != nil {
 				return
 			}
